@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create Axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // make sure backend runs on 5000
+  baseURL: 'https://employeemgmtsys-2.onrender.com/api', // updated to deployed backend
 });
 
 // Auth APIs
@@ -15,4 +15,4 @@ export const createEmployee = (data, token) => api.post('/employees', data, { he
 export const updateEmployee = (id, data, token) => api.put(`/employees/${id}`, data, { headers: { Authorization: `Bearer ${token}` } });
 export const deleteEmployee = (id, token) => api.delete(`/employees/${id}`, { headers: { Authorization: `Bearer ${token}` } });
 
-export default api; // default export for backward compatibility if needed
+export default api;
