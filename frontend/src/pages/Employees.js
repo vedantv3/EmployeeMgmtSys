@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/employeeApi'; // Axios instance pointing to backend
 import { useNavigate } from 'react-router-dom';
@@ -19,17 +19,8 @@ const Employees = () => {
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
 
-  // --- Fetch employees on mount ---
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-    } else {
-      fetchEmployees();
-    }
-  }, [token]);
-
-  // --- Functions ---
-  const fetchEmployees = async () => {
+  // --- Fetch employees function memoized ---
+  const fetchEmployees = useCallback(async () => {
     try {
       const res = await api.get('/employees', {
         headers: { Authorization: `Bearer ${token}` }
@@ -38,8 +29,18 @@ const Employees = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [token]);
 
+  // --- Fetch employees on mount ---
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    } else {
+      fetchEmployees();
+    }
+  }, [token, fetchEmployees, navigate]);
+
+  // --- Handlers ---
   const handleAddOrUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -82,14 +83,13 @@ const Employees = () => {
     }
   };
 
-  // --- UI Styles ---
+  // --- Styles ---
   const containerStyle = {
     minHeight: '100vh',
     padding: '40px 20px',
     background: 'linear-gradient(135deg, #667eea, #764ba2)',
     fontFamily: 'Segoe UI, sans-serif'
   };
-
   const cardStyle = {
     backgroundColor: '#fff',
     borderRadius: '20px',
@@ -98,7 +98,6 @@ const Employees = () => {
     margin: '0 auto',
     boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
   };
-
   const titleStyle = {
     display: 'flex',
     justifyContent: 'space-between',
@@ -106,7 +105,6 @@ const Employees = () => {
     color: '#333',
     marginBottom: '20px'
   };
-
   const logoutStyle = {
     padding: '10px 20px',
     backgroundColor: '#f44336',
@@ -115,7 +113,6 @@ const Employees = () => {
     borderRadius: '10px',
     cursor: 'pointer'
   };
-
   const inputStyle = {
     width: '100%',
     padding: '12px',
@@ -124,7 +121,6 @@ const Employees = () => {
     border: '1px solid #ccc',
     fontSize: '16px'
   };
-
   const buttonStyle = {
     padding: '12px',
     margin: '10px 0',
@@ -138,7 +134,6 @@ const Employees = () => {
     color: '#fff',
     transition: 'all 0.3s ease'
   };
-
   const deleteButtonStyle = { ...buttonStyle, backgroundColor: '#f44336' };
   const tableStyle = { width: '100%', borderCollapse: 'collapse', marginTop: '20px' };
   const thtdStyle = { border: '1px solid #ddd', padding: '10px', textAlign: 'left', borderRadius: '10px' };
